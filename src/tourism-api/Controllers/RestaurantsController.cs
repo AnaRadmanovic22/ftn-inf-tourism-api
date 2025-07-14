@@ -101,14 +101,34 @@ public class RestaurantController : ControllerBase
     [HttpPut("{id}")]
     public ActionResult<Restaurant> Update(int id, [FromBody] Restaurant restaurant)
     {
-        if (!restaurant.IsValid())
-        {
-            return BadRequest("Invalid restaurant data.");
-        }
+
+        //if (!restaurant.IsValid())
+        //{
+        //    return BadRequest("Invalid restaurant data.");
+        //}
 
         try
         {
             restaurant.Id = id;
+
+            
+            if (restaurant.Status == "objavljen")
+            {
+
+                if (string.IsNullOrWhiteSpace(restaurant.ImageUrl) || restaurant.Meals == null || restaurant.Meals.Count < 5)
+
+                {
+                    return BadRequest("Restoran ne može biti objavljen bez slike i najmanje 5 jela.");
+                }
+            }
+            else
+            {
+                
+                restaurant.Status = (!string.IsNullOrWhiteSpace(restaurant.ImageUrl) && restaurant.Meals.Count >= 5)
+                    ? "otvoren"
+                    : "u pripremi";
+            }
+
             Restaurant updatedRestaurant = _restaurantRepo.Update(restaurant);
             if (updatedRestaurant == null)
             {

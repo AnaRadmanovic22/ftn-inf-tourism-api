@@ -12,6 +12,36 @@ public class MealRepository
         _connectionString = configuration["ConnectionString:SQLiteConnection"];
     }
 
+    public List<Meal> GetByRestaurantId(int restaurantId)
+    {
+        var meals = new List<Meal>();
+
+        using SqliteConnection connection = new SqliteConnection(_connectionString);
+        connection.Open();
+
+        string query = "SELECT * FROM Meals WHERE RestaurantId = @RestaurantId";
+        using SqliteCommand command = new SqliteCommand(query, connection);
+        command.Parameters.AddWithValue("@RestaurantId", restaurantId);
+
+        using SqliteDataReader reader = command.ExecuteReader();
+        while (reader.Read())
+        {
+            meals.Add(new Meal
+            {
+                Id = Convert.ToInt32(reader["Id"]),
+                Order = Convert.ToInt32(reader["OrderPosition"]),
+                Name = reader["Name"].ToString(),
+                Price = Convert.ToDecimal(reader["Price"]),
+                Ingredients = reader["Ingredients"].ToString(),
+                ImageUrl = reader["ImageUrl"] == DBNull.Value ? null : reader["ImageUrl"].ToString(),
+                RestaurantId = Convert.ToInt32(reader["RestaurantId"])
+            });
+        }
+
+        return meals;
+    }
+
+
     public Meal Create(Meal meal)
     {
         try

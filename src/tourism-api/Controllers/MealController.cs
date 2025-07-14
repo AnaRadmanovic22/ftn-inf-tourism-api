@@ -17,6 +17,27 @@ public class MealController : ControllerBase
         _mealRepo = new MealRepository(configuration);
     }
 
+    [HttpGet]
+    public ActionResult<List<Meal>> GetByRestaurant(int restaurantId)
+    {
+        try
+        {
+            Restaurant restaurant = _restaurantRepo.GetById(restaurantId);
+            if (restaurant == null)
+            {
+                return NotFound($"Restaurant with ID {restaurantId} not found.");
+            }
+
+            List<Meal> meals = _mealRepo.GetByRestaurantId(restaurantId);
+            return Ok(meals);
+        }
+        catch (Exception ex)
+        {
+            return Problem("An error occurred while retrieving meals.");
+        }
+    }
+
+
     [HttpPost]
     public ActionResult<Meal> Create(int restaurantId, [FromBody] Meal newMeal)
     {

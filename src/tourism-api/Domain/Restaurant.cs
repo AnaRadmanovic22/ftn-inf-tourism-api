@@ -16,7 +16,12 @@ public class Restaurant
 
     public bool IsValid()
     {
-        return !string.IsNullOrWhiteSpace(Name) && !string.IsNullOrWhiteSpace(Description)
-            && !string.IsNullOrWhiteSpace(ImageUrl) && Capacity > 0;
+        return !string.IsNullOrWhiteSpace(Name) &&
+               !string.IsNullOrWhiteSpace(Description) &&
+               !string.IsNullOrWhiteSpace(ImageUrl) &&
+               Capacity > 0 &&
+               Latitude != 0 &&
+               Longitude != 0;
     }
+
 }

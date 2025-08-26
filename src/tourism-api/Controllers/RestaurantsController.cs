@@ -65,6 +65,13 @@ public class RestaurantController : ControllerBase
             {
                 return NotFound($"Restaurant with ID {id} not found.");
             }
+
+            var reviewRepo = new ReviewRepository(HttpContext.RequestServices.GetRequiredService<IConfiguration>());
+            // Sve ocene
+            restaurant.Reviews = reviewRepo.GetByRestaurant(id);
+            //Prosek
+            restaurant.AverageRating = reviewRepo.GetAverageForRestaurant(id);
+
             return Ok(restaurant);
         }
         catch (Exception ex)

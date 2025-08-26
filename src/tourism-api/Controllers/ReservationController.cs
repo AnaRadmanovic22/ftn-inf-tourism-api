@@ -34,7 +34,7 @@ public class ReservationController : ControllerBase
 
         var restaurant = _restaurantRepo.GetById(restaurantId);
         if (restaurant == null)
-            NotFound(new
+           return NotFound(new
             {
                 message = "Restoran nije pronadjen."
             });

@@ -111,5 +111,40 @@ public class ReservationRepository
             NumberOfGuests = reader.GetInt32(reader.GetOrdinal("NumberOfGuests"))
         };
     }
+    public bool TouristCanReviewRestaurant(int tourstId, int restaurantId, DateTime now)
+    {
+        //postoji li rezervacija u prozoru: vreme_rez + 1h <= now <= vreme_rez + 3 dana
+        using var connection = new SqliteConnection(_connectionString);
+        connection.Open();
+
+        using var command = connection.CreateCommand();
+        command.CommandText = @"SELECT Date, MealType FROM Reservation WHERE TouristId = @tid AND RestaurantId = @rid";
+        command.Parameters.AddWithValue("@tid", tourstId);
+        command.Parameters.AddWithValue("@rid", restaurantId);
+        
+        using var reader = command.ExecuteReader();
+        while (reader.Read())
+        {
+            var date = DateTime.Parse(reader.GetString(reader.GetOrdinal("Date")));
+            var mtStr = reader.GetString(reader.GetOrdinal("MealType"));
+            var mealType = Enum.Parse<MealType>(mtStr, true);
+
+            int hour = mealType switch
+            {
+                MealType.Breakfast => 8,
+                MealType.Lunch => 13,
+                MealType.Dinner => 18,
+                _ => 0
+            };
+            var slot = date.Date.AddHours(hour);
+            var earliest = slot.AddHours(1); // najranije sat nakon termina
+            var latest = slot.AddDays(3); // najkasnije 3 dana posle
+
+            if (now >= earliest && now <= latest)
+                return true;
+        }
+        return false;
+    }
+
 }
 
